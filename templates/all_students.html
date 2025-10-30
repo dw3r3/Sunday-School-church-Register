@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Students</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/all_students.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+<div class="container">
+    <!-- Top Navigation -->
+    <div class="top-nav">
+        <a href="{{ url_for('dashboard') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Page Title -->
+    <h1 class="page-title">
+        All Registered Students{% if selected_class %} - {{ selected_class }}{% endif %}
+    </h1>
+
+    <!-- Controls Bar -->
+    <div class="control-bar">
+        <!-- Sort and Filter Controls -->
+        <form method="get" action="{{ url_for('all_students') }}" class="filter-controls" id="filterForm">
+            <select name="class_name" id="class_name" class="filter-select" onchange="this.form.submit()">
+                <option value="">All Classes</option>
+                {% for cls in class_list %}
+                    <option value="{{ cls }}" {% if selected_class == cls %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="sort_by" class="filter-select" onchange="this.form.submit()">
+                <option value="name" {% if sort_by == 'name' %}selected{% endif %}>Sort by Name (A-Z)</option>
+                <option value="family" {% if sort_by == 'family' %}selected{% endif %}>Sort by Family Number</option>
+                <option value="class" {% if sort_by == 'class' %}selected{% endif %}>Sort by Class Level</option>
+                <option value="dob" {% if sort_by == 'dob' %}selected{% endif %}>Sort by Age (Youngest First)</option>
+            </select>
+
+            <label class="checkbox-label">
+                <input type="checkbox" name="group_by" value="family" 
+                       {% if group_by == 'family' %}checked{% endif %}
+                       onchange="this.form.submit()"> 
+                Group by family
+            </label>
+        </form>
+
+        <!-- Download button -->
+        <a href="{{ url_for('download_students', 
+                           class_name=selected_class, 
+                           sort_by=sort_by,
+                           group_by=group_by,
+                           search=search) }}" 
+           class="btn-download">
+            <i class="fas fa-download"></i> Download Excel
+        </a>
+    </div>
+
+    <script>
+        // Download function removed
+    </script>
+    
+    <!-- Student Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    {% if group_by == 'family' %}
+                        <th style="min-width: 200px">Family / Name</th>
+                    {% else %}
+                        <th style="min-width: 200px">Name</th>
+                    {% endif %}
+                    <th style="min-width: 100px">Class</th>
+                    <th style="min-width: 100px">DOB</th>
+                    <th style="min-width: 150px">Parent</th>
+                    <th style="min-width: 120px">Contact</th>
+                    <th style="min-width: 100px">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if grouped_families %}
+                    {% for family_id, members in grouped_families %}
+                        <tr class="family-header">
+                            <td colspan="6">
+                                <i class="fas fa-users"></i> Family: {{ family_id }}
+                            </td>
+                        </tr>
+                        {% for student in members %}
+                            <tr class="family-member">
+                                <td>{{ student.name }}</td>
+                                <td>{{ student.student_class }}</td>
+                                <td>{{ student.dob }}</td>
+                                <td>{{ student.parent }}</td>
+                                <td>{{ student.contact }}</td>
+                                <td class="action-btns">
+                                    <a href="{{ url_for('student_detail', student_id=student.id) }}" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if session['role'] == 'admin' %}
+                                        <a href="{{ url_for('edit_student', student_id=student.id) }}" title="Edit">
+                                            <i class="fas fa-pen-to-square"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endfor %}
+                {% else %}
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.student_class }}</td>
+                            <td>{{ student.dob }}</td>
+                            <td>{{ student.parent }}</td>
+                            <td>{{ student.contact }}</td>
+                            <td class="action-btns">
+                                <a href="{{ url_for('student_detail', student_id=student.id) }}" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if session['role'] == 'admin' %}
+                                    <a href="{{ url_for('edit_student', student_id=student.id) }}" title="Edit">
+                                        <i class="fas fa-pen-to-square"></i>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+    <script>
+        // Handle real-time search filtering
+        const searchInput = document.getElementById('search');
+        const tableRows = document.querySelectorAll('table tbody tr');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            let isInFamilyGroup = false;
+
+            tableRows.forEach(row => {
+                // Skip family header rows if grouping by family
+                if (row.cells[0].getAttribute('colspan') === '6') {
+                    isInFamilyGroup = true;
+                    row.style.display = row.textContent.toLowerCase().includes(searchTerm) ? '' : 'none';
+                    return;
+                }
+
+                // For regular student rows
+                const textToSearch = Array.from(row.cells)
+                    .map(cell => cell.textContent.trim())
+                    .join(' ')
+                    .toLowerCase();
+
+                if (textToSearch.includes(searchTerm)) {
+                    row.style.display = '';
+                    // If in a family group, show the family header too
+                    if (isInFamilyGroup) {
+                        const familyHeader = row.previousElementSibling;
+                        if (familyHeader && familyHeader.cells[0].getAttribute('colspan') === '6') {
+                            familyHeader.style.display = '';
+                        }
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+
+        // Handle downloads
+        function downloadData(format) {
+            // Get current filter parameters
+            const params = new URLSearchParams(window.location.search);
+            params.append('download', format);
+            
+            // Create download URL
+            const downloadUrl = `${window.location.pathname}?${params.toString()}`;
+            
+            // Create temporary link and trigger download
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `students_${format}.${format}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Auto-submit form when select fields change
+        document.querySelectorAll('select, input[type="checkbox"]').forEach(input => {
+            input.addEventListener('change', () => {
+                document.getElementById('filterForm').submit();
+            });
+        });
+    </script>
+</body>
+</html>

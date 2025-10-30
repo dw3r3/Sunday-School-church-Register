@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Report PDF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; padding: 20px; }
+        h1 { color: #D32F2F; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: center; }
+        th { background: #D32F2F; color: white; }
+        .fa-check-circle { color: green; }
+        .fa-times-circle { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Attendance Report - {{ selected_class or "All Classes" }} ({{ month }}/{{ year }})</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                {% for sunday in sundays %}
+                <th>{{ sunday.strftime('%d %b') }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.name }}</td>
+                {% for sunday in sundays %}
+                {% set is_present = attendance_map.get((student.id, sunday), False) %}
+                                <td>
+                {% if is_present %}
+                    <span style="color: green;">&#10004;</span>
+                {% else %}
+                    <span style="color: red;">&#10008;</span>
+                {% endif %}
+                </td>
+
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

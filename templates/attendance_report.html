@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Attendance Reports</h2>
+            <ul>
+                <li><a href="{{ url_for('dashboard') }}">← Back to Register</a></li>
+                {% if session.get('role') == 'admin' %}
+                <li><a href="{{ url_for('inventory') }}">📦 Inventory</a></li>
+                {% endif %}
+
+            </ul>
+        </aside>
+
+        <main class="register">
+            <h1>Attendance Report - {{ month }}/{{ year }}</h1>
+            
+
+
+            <form method="get" action="{{ url_for('attendance_report') }}">
+                <label>Class:
+                    <select name="class_name" onchange="this.form.submit()">
+                        <option value="">-- All --</option>
+                        <option value="Genesis" {% if selected_class == 'Genesis' %}selected{% endif %}>Genesis</option>
+                        <option value="Exodus" {% if selected_class == 'Exodus' %}selected{% endif %}>Exodus</option>
+                        <option value="Psalms" {% if selected_class == 'Psalms' %}selected{% endif %}>Psalms</option>
+                        <option value="Proverbs" {% if selected_class == 'Proverbs' %}selected{% endif %}>Proverbs</option>
+                        <option value="Revelation" {% if selected_class == 'Revelation' %}selected{% endif %}>Revelation</option>
+                        <option value="High Schoolers" {% if selected_class == 'High Schoolers' %}selected{% endif %}>High Schoolers</option>
+                    </select>
+                </label>
+
+                <label>Month:
+                    <select name="month" onchange="this.form.submit()">
+                        {% for m in range(1, 13) %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label>Year:
+                    <select name="year" onchange="this.form.submit()">
+                        {% for y in range(2023, 2031) %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+            </form>
+       <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        {% for sunday in sundays %}
+                        <th>{{ sunday.strftime('%d %b') }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.name }}</td>
+                        {% for sunday in sundays %}
+                        {% set is_present = attendance_map.get((student.id, sunday), False) %}
+                        <td>
+                    {% if is_present %}
+                        <i class="fas fa-check-circle" style="color: green;" title="Present"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle" style="color: red;" title="Absent"></i>
+                    {% endif %}
+                    </td>
+
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Student</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="edit-page">
+    <div class="edit-container">
+        <h1>Edit Student</h1>
+
+        <form method="POST" action="{{ url_for('edit_student', student_id=student.id) }}">
+            <label>Full Name:</label><br>
+            <input type="text" name="name" value="{{ student.name }}" required><br>
+
+            <label>Date of Birth:</label><br>
+            <input type="date" name="dob" value="{{ student.dob }}" required><br>
+
+            <label>Parent/Guardian:</label><br>
+            <input type="text" name="parent" value="{{ student.parent }}"><br>
+
+            <label>Emergency Contact:</label><br>
+            <input type="text" name="contact" value="{{ student.contact }}"><br>
+
+            <label>Class:</label><br>
+            <select name="class">
+                {% for cls in ['Genesis', 'Exodus', 'Psalms', 'Proverbs', 'Revelation', 'High Schoolers'] %}
+                    <option value="{{ cls }}" {% if student.student_class == cls %}selected{% endif %}>{{ cls }}</option>
+                {% endfor %}
+            </select><br><br>
+
+            <button type="submit">💾 Save Changes</button>
+            <a href="{{ url_for('dashboard') }}" style="margin-left: 15px;">Cancel</a>
+        </form>
+    </div>
+</body>
+
+</html>

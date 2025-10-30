@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventory Dashboard | Church Student Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .inventory-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background-color: #f0f2f5;
+            min-height: 100vh;
+        }
+
+        .inventory-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .inventory-title {
+            display: flex;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .inventory-icon {
+            margin-right: 15px;
+            font-size: 2.5rem;
+        }
+
+        .scan-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .scan-btn:hover {
+            background-color: #45a049;
+        }
+
+        .inventory-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+            margin-bottom: 40px;
+        }
+
+        .tab-navigation {
+            display: flex;
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 30px;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            padding: 15px 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #6c757d;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background-color: #ffffff;
+            color: #333;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #495057;
+            background-color: rgba(255,255,255,0.7);
+            transform: translateY(-1px);
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .inventory-table th {
+            background-color: #f8f9fa;
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e9ecef;
+            font-size: 1.1rem;
+        }
+
+        .inventory-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 1rem;
+        }
+
+        .inventory-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-missing {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .report-section {
+            margin-top: 50px;
+        }
+
+        .report-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .report-stats {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .stat-item {
+            color: #333;
+        }
+
+        .stat-number {
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .stat-available {
+            color: #28a745;
+        }
+
+        .stat-missing {
+            color: #dc3545;
+        }
+
+        .report-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .report-btn {
+            padding: 12px 24px;
+            border: 2px solid #6c757d;
+            background: white;
+            color: #6c757d;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .report-btn:hover {
+            background-color: #6c757d;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: #D32F2F;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: #B71C1C;
+            text-decoration: none;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+<a href="{{ url_for('dashboard') }}" class="back-btn">← Back to Dashboard</a>
+
+<div class="inventory-container">
+    <div class="inventory-header">
+        <h1 class="inventory-title">
+            <span class="inventory-icon">📦</span>
+            Inventory Dashboard
+        </h1>
+        <button class="scan-btn" onclick="openScanModal()">Scan QR to Add</button>
+    </div>
+
+    <div class="inventory-card">
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="showTab('all')">All Items</button>
+            {% if categories %}
+                {% for category in categories %}
+                <button class="tab-btn" onclick="showTab('{{ category|lower|replace(' ', '_') }}')">{{ category }}</button>
+                {% endfor %}
+            {% endif %}
+            <button class="tab-btn add-category-btn" onclick="showAddCategoryModal()" style="background: #28a745; color: white;">+ Add Category</button>
+        </div>
+
+        <!-- All Items Tab -->
+        <div id="all-content" class="tab-content active">
+            {% if all_items %}
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>QR Code</th>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in all_items %}
+                    <tr>
+                        <td>{{ item.description.split(' - QR: ')[1] if ' - QR: ' in item.description else 'N/A' }}</td>
+                        <td>{{ item.item_name }}</td>
+                        <td>{{ item.description.split(' - QR: ')[0] if ' - QR: ' in item.description else item.description }}</td>
+                        <td>
+                            <span class="status-badge {{ 'status-available' if item.quantity > 0 else 'status-missing' }}">
+                                {{ "Available" if item.quantity > 0 else "Missing" }}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="deleteItem({{ item.id }}, '{{ item.item_name }}')"
+                                    style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div style="text-align: center; padding: 60px 20px; color: #666;">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📦</div>
+                <h3 style="margin-bottom: 15px; color: #333;">No Items Yet</h3>
+                <p style="margin-bottom: 25px; font-size: 1.1rem;">Start by adding your first inventory item using the "Scan QR to Add" button above.</p>
+                <p style="font-size: 0.95rem;">You can scan QR codes or create categories manually.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Dynamic Category Tabs -->
+        {% if categories %}
+            {% for category in categories %}
+            <div id="{{ category|lower|replace(' ', '_') }}-content" class="tab-content">
+                {% if items_by_category[category] %}
+                <table class="inventory-table">
+                    <thead>
+                        <tr>
+                            <th>QR Code</th>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items_by_category[category] %}
+                        <tr>
+                            <td>{{ item.description.split(' - QR: ')[1] if ' - QR: ' in item.description else 'N/A' }}</td>
+                            <td>{{ item.item_name }}</td>
+                            <td>{{ item.description.split(' - QR: ')[0] if ' - QR: ' in item.description else item.description }}</td>
+                            <td>
+                                <span class="status-badge {{ 'status-available' if item.quantity > 0 else 'status-missing' }}">
+                                    {{ "Available" if item.quantity > 0 else "Missing" }}
+                                </span>
+                            </td>
+                            <td>
+                                <button onclick="deleteItem({{ item.id }}, '{{ item.item_name }}')"
+                                        style="background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">
+                                    🗑️ Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div style="text-align: center; padding: 60px 20px; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 20px;">📂</div>
+                    <h3 style="margin-bottom: 15px; color: #333;">No {{ category }} Items</h3>
+                    <p style="margin-bottom: 25px;">Add items to this category using the "Scan QR to Add" button.</p>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+
+    </div>
+
+    <!-- Quarterly Report Section -->
+    <div class="inventory-card report-section">
+        <h2 class="report-title">Quarterly Report</h2>
+
+        <div class="report-stats">
+            <div class="stat-item">
+                <span>Total Items: </span>
+                <span class="stat-number">{{ all_items|length }}</span>
+            </div>
+            <div class="stat-item">
+                <span>Available: </span>
+                <span class="stat-number stat-available">{{ all_items|selectattr('quantity', 'gt', 0)|list|length }}</span>
+            </div>
+            <div class="stat-item">
+                <span>Missing: </span>
+                <span class="stat-number stat-missing">{{ all_items|rejectattr('quantity', 'gt', 0)|list|length }}</span>
+            </div>
+        </div>
+
+        <!-- Report buttons removed -->
+    </div>
+</div>
+
+<!-- Add Category Modal -->
+<div id="addCategoryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 400px;">
+        <h3 style="margin-bottom: 20px;">Add New Category</h3>
+        <form method="POST" action="{{ url_for('add_category') }}">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; font-weight: 500;">Category Name</label>
+                <input type="text" name="category_name" required placeholder="e.g., Projectors, Microphones" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeAddCategoryModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Add Category</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- QR Scan Modal -->
+<div id="scanModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000;">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px;">
+        <h3 style="margin-bottom: 20px; text-align: center;">Scan QR Code or Add Item</h3>
+
+        <!-- Camera Section -->
+        <div id="cameraSection" style="text-align: center; margin-bottom: 20px;">
+            <video id="qrVideo" style="width: 100%; max-width: 400px; height: 300px; border: 2px solid #ddd; border-radius: 8px; background: #000;"></video>
+            <div style="margin-top: 10px;">
+                <button type="button" id="startCamera" onclick="startCamera()" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; margin-right: 10px;">Start Camera</button>
+                <button type="button" id="stopCamera" onclick="stopCamera()" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 6px; cursor: pointer; display: none;">Stop Camera</button>
+                <button type="button" onclick="testQRScanner()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; margin-left: 10px;">Test Scanner</button>
+            </div>
+            <div id="scanStatus" style="margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-size: 0.9rem; color: #666;">
+                Ready to scan QR codes...
+            </div>
+            <div id="scanResult" style="margin-top: 10px; padding: 10px; background: #d4edda; border-radius: 6px; display: none;">
+                <strong>Scanned QR Code:</strong> <span id="scannedCode"></span>
+            </div>
+        </div>
+
+        <!-- Manual Entry Form -->
+        <div style="border-top: 1px solid #ddd; padding-top: 20px;">
+            <h4 style="margin-bottom: 15px;">Or Enter Manually:</h4>
+            <form method="POST" action="{{ url_for('add_item') }}" id="addItemForm">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Item Name</label>
+                    <input type="text" name="name" id="itemName" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">Category</label>
+                    <select name="type" id="itemType" onchange="toggleCustomCategory()" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                        {% if categories %}
+                            {% for category in categories %}
+                            <option value="{{ category }}">{{ category }}</option>
+                            {% endfor %}
+                        {% endif %}
+                        <option value="Custom">+ Create New Category...</option>
+                    </select>
+                    <input type="text" name="custom_type" id="customType" placeholder="Enter new category name"
+                           style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-top: 10px; display: none;">
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 500;">QR Code</label>
+                    <input type="text" name="qr_code" id="qrCodeInput" placeholder="Scan QR code or leave blank for auto-generated ID" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px;">
+                    <small style="color: #666;">Leave blank to auto-generate a unique ID</small>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closeScanModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer;">Cancel</button>
+                    <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+let videoStream = null;
+let canvas = null;
+let context = null;
+let scanning = false;
+
+function showTab(tabName) {
+    // Hide all tab contents
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active'));
+
+    // Remove active class from all tab buttons
+    const buttons = document.querySelectorAll('.tab-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+
+    // Show selected tab content
+    document.getElementById(tabName + '-content').classList.add('active');
+
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
+
+function openScanModal() {
+    document.getElementById('scanModal').style.display = 'block';
+    // Reset form
+    document.getElementById('addItemForm').reset();
+    document.getElementById('scanResult').style.display = 'none';
+
+    // Check if jsQR is loaded
+    if (typeof jsQR === 'undefined') {
+        console.error('jsQR library not loaded');
+        document.getElementById('startCamera').textContent = 'QR Scanner Not Available';
+        document.getElementById('startCamera').disabled = true;
+    }
+}
+
+function closeScanModal() {
+    stopCamera();
+    document.getElementById('scanModal').style.display = 'none';
+}
+
+async function startCamera() {
+    try {
+        console.log('Starting camera...');
+        updateScanStatus('Starting camera...', 'scanning');
+
+        const video = document.getElementById('qrVideo');
+        const startBtn = document.getElementById('startCamera');
+        const stopBtn = document.getElementById('stopCamera');
+
+        // Check if jsQR is available
+        if (typeof jsQR === 'undefined') {
+            throw new Error('QR scanning library not loaded');
+        }
+
+        // Request camera access with more specific constraints
+        const constraints = {
+            video: {
+                facingMode: { ideal: 'environment' }, // Prefer back camera
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }
+        };
+
+        updateScanStatus('Requesting camera permission...', 'scanning');
+        videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        video.srcObject = videoStream;
+        await video.play();
+
+        console.log('Camera started successfully');
+        updateScanStatus('Camera active - Point at QR code to scan', 'scanning');
+
+        // Update button visibility
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+
+        // Create canvas for QR code detection
+        canvas = document.createElement('canvas');
+        context = canvas.getContext('2d');
+
+        scanning = true;
+        scanForQRCode();
+
+    } catch (error) {
+        console.error('Error accessing camera:', error);
+        let errorMessage = 'Unable to access camera. ';
+
+        if (error.name === 'NotAllowedError') {
+            errorMessage = 'Camera permission denied. Please allow camera access and try again.';
+        } else if (error.name === 'NotFoundError') {
+            errorMessage = 'No camera found on this device.';
+        } else if (error.name === 'NotSupportedError') {
+            errorMessage = 'Camera not supported in this browser.';
+        } else if (error.message.includes('QR scanning library')) {
+            errorMessage = 'QR scanning library failed to load. Please refresh the page.';
+        } else {
+            errorMessage += 'Please check permissions or use manual entry.';
+        }
+
+        updateScanStatus(errorMessage, 'error');
+    }
+}
+
+function stopCamera() {
+    const video = document.getElementById('qrVideo');
+    const startBtn = document.getElementById('startCamera');
+    const stopBtn = document.getElementById('stopCamera');
+
+    scanning = false;
+
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+
+    video.srcObject = null;
+
+    // Update button visibility
+    startBtn.style.display = 'inline-block';
+    stopBtn.style.display = 'none';
+
+    // Update status
+    updateScanStatus('Camera stopped. Ready to scan QR codes...', 'info');
+}
+
+function scanForQRCode() {
+    if (!scanning) return;
+
+    const video = document.getElementById('qrVideo');
+
+    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        try {
+            // Set canvas size to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            // Draw video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Get image data from canvas
+            const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+
+            // Scan for QR code
+            if (typeof jsQR !== 'undefined') {
+                const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                    inversionAttempts: "dontInvert",
+                });
+
+                if (code) {
+                    console.log('QR Code found:', code.data);
+                    handleQRCodeDetected(code.data);
+                    return;
+                }
+            } else {
+                console.error('jsQR not available');
+                scanning = false;
+                return;
+            }
+        } catch (error) {
+            console.error('Error during QR scanning:', error);
+        }
+    }
+
+    // Continue scanning
+    if (scanning) {
+        requestAnimationFrame(scanForQRCode);
+    }
+}
+
+function handleQRCodeDetected(qrData) {
+    console.log('QR Code detected:', qrData);
+
+    // Stop camera
+    stopCamera();
+
+    // Update status
+    updateScanStatus('QR Code detected successfully!', 'success');
+
+    // Show scan result
+    document.getElementById('scannedCode').textContent = qrData;
+    document.getElementById('scanResult').style.display = 'block';
+
+    // Fill the QR code input
+    document.getElementById('qrCodeInput').value = qrData;
+
+    // Try to auto-detect item type from QR code
+    const qrLower = qrData.toLowerCase();
+    const typeSelect = document.getElementById('itemType');
+
+    if (qrLower.includes('chair')) {
+        typeSelect.value = 'Chair';
+    } else if (qrLower.includes('table')) {
+        typeSelect.value = 'Table';
+    } else if (qrLower.includes('board')) {
+        typeSelect.value = 'Board';
+    } else if (qrLower.includes('pencil')) {
+        typeSelect.value = 'Pencil';
+    }
+
+    // Focus on item name field
+    document.getElementById('itemName').focus();
+}
+
+function updateScanStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('scanStatus');
+    statusDiv.textContent = message;
+
+    // Update styling based on type
+    if (type === 'success') {
+        statusDiv.style.background = '#d4edda';
+        statusDiv.style.color = '#155724';
+    } else if (type === 'error') {
+        statusDiv.style.background = '#f8d7da';
+        statusDiv.style.color = '#721c24';
+    } else if (type === 'scanning') {
+        statusDiv.style.background = '#cce7ff';
+        statusDiv.style.color = '#004085';
+    } else {
+        statusDiv.style.background = '#f8f9fa';
+        statusDiv.style.color = '#666';
+    }
+}
+
+function testQRScanner() {
+    // Test if jsQR library is loaded
+    if (typeof jsQR === 'undefined') {
+        updateScanStatus('Error: QR scanning library not loaded', 'error');
+        return;
+    }
+
+    // Test camera availability
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        updateScanStatus('Error: Camera not supported in this browser', 'error');
+        return;
+    }
+
+    // Simulate a successful QR code detection for testing
+    updateScanStatus('Scanner test: Simulating QR code detection...', 'scanning');
+
+    setTimeout(() => {
+        const testQRData = 'TEST_QR_' + Date.now();
+        handleQRCodeDetected(testQRData);
+    }, 2000);
+}
+
+// Add Category Modal functions
+function showAddCategoryModal() {
+    document.getElementById('addCategoryModal').style.display = 'block';
+}
+
+function closeAddCategoryModal() {
+    document.getElementById('addCategoryModal').style.display = 'none';
+}
+
+// Auto-generate unique ID if QR code is empty
+document.getElementById('addItemForm').addEventListener('submit', function(e) {
+    const qrInput = document.getElementById('qrCodeInput');
+    if (!qrInput.value.trim()) {
+        // Generate unique ID
+        const timestamp = Date.now();
+        const randomNum = Math.floor(Math.random() * 1000);
+        qrInput.value = `AUTO_${timestamp}_${randomNum}`;
+    }
+});
+
+// Custom category functionality
+function toggleCustomCategory() {
+    const typeSelect = document.getElementById('itemType');
+    const customInput = document.getElementById('customType');
+
+    if (typeSelect.value === 'Custom') {
+        customInput.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+        customInput.placeholder = 'Enter new category name (e.g., Chairs, Tables, Projectors)';
+    } else {
+        customInput.style.display = 'none';
+        customInput.required = false;
+        customInput.value = '';
+    }
+}
+
+// Delete item functionality
+function deleteItem(itemId, itemName) {
+    if (confirm(`Are you sure you want to delete "${itemName}"?\n\nThis action cannot be undone and will permanently remove the item from inventory.`)) {
+        // Send delete request
+        fetch(`/delete_item/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload page to update inventory
+                window.location.reload();
+            } else {
+                alert('Error deleting item. Please try again.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting item. Please try again.');
+        });
+    }
+}
+
+// Close modal when clicking outside
+document.getElementById('scanModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeScanModal();
+    }
+});
+
+// Handle camera permissions
+window.addEventListener('load', function() {
+    // Check if camera is available
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn('Camera not supported');
+        document.getElementById('startCamera').textContent = 'Camera Not Available';
+        document.getElementById('startCamera').disabled = true;
+    }
+});
+</script>
+
+</body>
+</html>
+
+

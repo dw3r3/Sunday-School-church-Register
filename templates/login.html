@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Church Student Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="logo-wrapper">
+    <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo" class="logo">
+    </div>
+    <h1>Church Student Register</h1>
+
+        <form action="{{ url_for('login') }}" method="POST">
+            <input type="text" name="email" placeholder="Email / Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Sign in</button>
+    
+            {% if error %}
+                <p style="color: red;">{{ error }}</p>
+            {% endif %}
+        </form>
+
+        <div class="register-link">
+            <p>New teacher? <a href="{{ url_for('register') }}" style="color: #007bff; text-decoration: none;">Register for access</a></p>
+        </div>
+    </div>
+</body>
+</html>

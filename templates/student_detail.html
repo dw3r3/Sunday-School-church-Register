@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ student.name }} - Student Details</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .student-profile {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .profile-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .default-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            margin: 0 auto 20px;
+            border: 5px solid white;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .default-avatar:hover {
+            transform: scale(1.05);
+        }
+
+        .student-name {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin: 0 0 10px 0;
+        }
+
+        .student-class {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        .profile-content {
+            padding: 40px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #007bff;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .edit-section {
+            border-top: 2px solid #e9ecef;
+            padding-top: 30px;
+            margin-top: 30px;
+        }
+
+        .edit-toggle {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .edit-toggle:hover {
+            background: #0056b3;
+        }
+
+        .edit-form {
+            display: none;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #495057;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            text-decoration: none;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="student-profile">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            {% if student.profile_image %}
+                <img src="{{ url_for('static', filename='uploads/profiles/' + student.profile_image) }}"
+                     alt="{{ student.name }}"
+                     class="profile-photo"
+                     onclick="showLargeImage('{{ url_for('static', filename='uploads/profiles/' + student.profile_image) }}')">
+            {% else %}
+                <div class="default-avatar" onclick="alert('No profile photo available')">
+                    👤
+                </div>
+            {% endif %}
+
+            <h1 class="student-name">{{ student.name }}</h1>
+            <p class="student-class">{{ student.student_class }} Class</p>
+        </div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Age</div>
+                    <div class="info-value">{{ age }} years old</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Date of Birth</div>
+                    <div class="info-value">{{ formatted_date }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Parent/Guardian</div>
+                    <div class="info-value">{{ student.parent or 'Not provided' }}</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">Emergency Contact</div>
+                    <div class="info-value">{{ student.contact or 'Not provided' }}</div>
+                </div>
+
+                {% if student.family_id %}
+                <div class="info-item">
+                    <div class="info-label">Family ID</div>
+                    <div class="info-value">{{ student.family_id }}</div>
+                </div>
+                {% endif %}
+
+                <div class="info-item">
+                    <div class="info-label">Status</div>
+                    <div class="info-value">{{ 'Active' if student.status == 'active' else 'Inactive' }}</div>
+                </div>
+            </div>
+
+            {% if session['role'] == 'teacher' and session.get('assigned_class') != student.student_class %}
+            <!-- View Only Notice for Teachers -->
+            <div style="background: #e9ecef; border: 1px solid #dee2e6; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+                <i class="fas fa-eye" style="color: #6c757d; margin-right: 8px;"></i>
+                <strong style="color: #495057;">View Only Mode</strong>
+                <p style="margin: 5px 0 0 0; color: #6c757d; font-size: 0.9rem;">
+                    You can view this student's details but cannot edit them.
+                    You can only edit students in your assigned class: <strong>{{ session.get('assigned_class') }}</strong>
+                </p>
+            </div>
+            {% endif %}
+
+            {% if session['role'] == 'admin' or (session['role'] == 'teacher' and session.get('assigned_class') == student.student_class) %}
+            <!-- Edit Section -->
+            <div class="edit-section">
+                <button class="edit-toggle" onclick="toggleEditForm()">
+                    <i class="fas fa-edit"></i> Edit Student Information
+                </button>
+
+                <div class="edit-form" id="editForm">
+                    <form method="POST" action="{{ url_for('edit_student') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="student_id" value="{{ student.id }}">
+
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-input" value="{{ student.name }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth</label>
+                            <input type="date" name="dob" class="form-input" value="{{ student.dob }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Parent/Guardian</label>
+                            <input type="text" name="parent" class="form-input" value="{{ student.parent or '' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Emergency Contact</label>
+                            <input type="text" name="contact" class="form-input" value="{{ student.contact or '' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Family ID (Optional)</label>
+                            <input type="text" name="family_id" class="form-input" value="{{ student.family_id or '' }}" placeholder="For grouping siblings">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Profile Photo</label>
+                            <input type="file" name="profile_image" class="form-input" accept="image/*">
+                            <small style="color: #666; font-size: 0.9rem;">Leave blank to keep current photo</small>
+                        </div>
+
+                        <div style="display: flex; gap: 15px; justify-content: center; margin-top: 25px;">
+                            <button type="button" class="btn btn-secondary" onclick="toggleEditForm()">Cancel</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Action Buttons -->
+            <div class="btn-group">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+                {% if session['role'] == 'admin' %}
+                <a href="{{ url_for('dashboard', class_name=student.student_class) }}" class="btn btn-primary">
+                    <i class="fas fa-users"></i> View {{ student.student_class }} Class
+                </a>
+                <button onclick="deleteStudentFromDetail({{ student.id }}, '{{ student.name }}')" class="btn btn-danger">
+                    <i class="fas fa-trash"></i> Delete Student
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Large Image Modal -->
+    <div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; cursor: pointer;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+            <img id="largeImage" style="max-width: 90vw; max-height: 90vh; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
+        </div>
+    </div>
+
+    <script>
+        function toggleEditForm() {
+            const form = document.getElementById('editForm');
+            const button = document.querySelector('.edit-toggle');
+
+            if (form.style.display === 'none' || form.style.display === '') {
+                form.style.display = 'block';
+                button.innerHTML = '<i class="fas fa-times"></i> Cancel Edit';
+                button.style.backgroundColor = '#dc3545';
+            } else {
+                form.style.display = 'none';
+                button.innerHTML = '<i class="fas fa-edit"></i> Edit Student Information';
+                button.style.backgroundColor = '#007bff';
+            }
+        }
+
+        function showLargeImage(imageSrc) {
+            const modal = document.getElementById('imageModal');
+            const largeImage = document.getElementById('largeImage');
+
+            largeImage.src = imageSrc;
+            modal.style.display = 'block';
+
+            modal.onclick = function() {
+                modal.style.display = 'none';
+            };
+        }
+
+        // Delete Student function (Admin only)
+        function deleteStudentFromDetail(studentId, studentName) {
+            if (confirm(`Are you sure you want to permanently delete "${studentName}"?\n\nThis action cannot be undone and will remove:\n- Student record\n- All attendance history\n- Profile photo\n\nClick OK to confirm deletion.`)) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/admin/delete-student/${studentId}`;
+
+                // Add CSRF protection if needed
+                const csrfToken = document.querySelector('meta[name="csrf-token"]');
+                if (csrfToken) {
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrf_token';
+                    csrfInput.value = csrfToken.getAttribute('content');
+                    form.appendChild(csrfInput);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+    </script>
+</body>
+</html>

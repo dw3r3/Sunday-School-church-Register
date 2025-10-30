@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Backup and Restore | Church Student Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        /* Card-like container for sections */
+        .backup-section {
+            background: #ffffff;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(18,38,63,0.06);
+            margin-bottom: 22px;
+        }
+
+        /* Warning boxes */
+        .backup-warning {
+            background: #fff8e6;
+            border: 1px solid #ffe8b8;
+            padding: 14px 16px;
+            border-radius: 8px;
+            margin-bottom: 18px;
+            color: #6a5840;
+        }
+
+        /* List of backups */
+        .backup-list { margin-top: 16px; }
+
+        .backup-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 6px;
+            border-bottom: 1px solid #f1f3f5;
+        }
+
+        .backup-item:last-child { border-bottom: none; }
+
+        .backup-actions { display: flex; gap: 10px; }
+
+        /* Button base style used only in this page (keeps global bootstrap intact) */
+        .page-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 6px 12px rgba(11,55,130,0.06);
+        }
+
+        /* Primary action (create / restore / download) */
+        .page-btn-primary {
+            background: linear-gradient(180deg, #2563eb, #1e40af);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* Back button — outlined primary, more visible than default gray */
+        .page-btn-back {
+            background: transparent;
+            color: #1e40af;
+            border: 1px solid rgba(30,64,175,0.15);
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .page-btn:active, .page-btn:focus { outline: none; transform: translateY(0.5px); }
+
+        .restore-form { margin-top: 18px; padding-top: 18px; border-top: 1px solid #f1f3f5; }
+
+        /* File input slight styling */
+        input[type="file"] { border: 1px dashed #e6e9ee; padding: 8px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: right; margin-bottom: 20px;">
+            <a href="{{ url_for('dashboard') }}" class="page-btn page-btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <h1>Backup and Restore</h1>
+
+        <!-- Backup Section -->
+        <div class="backup-section">
+            <h2>Create New Backup</h2>
+            <p>Create a backup of your database and all profile images.</p>
+            <div class="backup-warning">
+                <i class="fas fa-info-circle"></i>
+                Backup includes:
+                <ul>
+                    <li>Student database (records, attendance, etc.)</li>
+                    <li>Profile images</li>
+                    <li>User accounts</li>
+                </ul>
+            </div>
+            <form method="post">
+                <button type="submit" class="page-btn page-btn-primary">
+                    <i class="fas fa-download"></i> Create and Download Backup
+                </button>
+            </form>
+        </div>
+
+        <!-- Restore Section -->
+        <div class="backup-section">
+            <h2>Restore from Backup</h2>
+            <div class="backup-warning" style="background:#f8d7da;border-color:#f5c6cb;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> Restoring from a backup will overwrite your current database.
+                Consider creating a new backup before restoring.
+            </div>
+            <form method="post" enctype="multipart/form-data" class="restore-form">
+                <div style="margin-bottom:15px;">
+                    <label for="restore_file" style="display:block;margin-bottom:8px;">Select Backup File (ZIP):</label>
+                    <input type="file" id="restore_file" name="restore_file" accept=".zip" required>
+                </div>
+                <button type="submit" class="page-btn page-btn-primary" onclick="return confirm('Are you sure you want to restore from this backup? This will overwrite your current data.')">
+                    <i class="fas fa-upload"></i> Restore from Backup
+                </button>
+            </form>
+        </div>
+
+        <!-- Previous Backups -->
+        {% if backups %}
+        <div class="backup-section">
+            <h2>Previous Backups</h2>
+            <div class="backup-list">
+                {% for backup in backups %}
+                <div class="backup-item">
+                    <div>
+                        <i class="fas fa-file-archive"></i>
+                        {{ backup }}
+                    </div>
+                    <div class="backup-actions">
+                        <a href="{{ url_for('download_backup', filename=backup) }}" class="page-btn page-btn-primary">
+                            <i class="fas fa-download"></i> Download
+                        </a>
+
+                        <form method="POST" action="{{ url_for('delete_backup', filename=backup) }}" style="display:inline;">
+                            <button type="submit" class="page-btn page-btn-back" onclick="return confirm('Delete this backup? This cannot be undone.')">
+                                <i class="fas fa-trash-alt" style="color:#c82333"></i> Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Flash message handling
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    alert('{{ message }}');
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

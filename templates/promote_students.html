@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Class Promotions - CCL Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .promotion-container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .promotion-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .card-content {
+            padding: 30px;
+        }
+
+        .promotion-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .option-card {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .option-card:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.1);
+        }
+
+        .option-card.selected {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .student-table th,
+        .student-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .student-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .needs-promotion {
+            background: #fff3cd !important;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .status-current {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-suggested {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+
+        .status-needs {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .manual-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .class-select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin: 0 10px;
+        }
+
+        @media (max-width: 768px) {
+            .promotion-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="promotion-container">
+        <!-- Header -->
+        <div class="promotion-card">
+            <div class="card-header">
+                <h1><i class="fas fa-graduation-cap"></i> Class Promotions</h1>
+                <p>Manage student class transitions and age-appropriate placements</p>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}" style="margin-bottom: 20px; padding: 15px; border-radius: 8px; 
+                         background: {{ '#d4edda' if category == 'success' else '#f8d7da' }}; 
+                         color: {{ '#155724' if category == 'success' else '#721c24' }}; 
+                         border: 1px solid {{ '#c3e6cb' if category == 'success' else '#f5c6cb' }};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Promotion Options -->
+        <div class="promotion-card">
+            <div class="card-content">
+                <h2 style="margin-bottom: 25px;">Choose Promotion Method</h2>
+                
+                <div class="promotion-options">
+                    <div class="option-card" onclick="selectOption('automatic')">
+                        <i class="fas fa-magic" style="font-size: 2.5rem; color: #28a745; margin-bottom: 15px;"></i>
+                        <h3>Automatic Promotion</h3>
+                        <p>Automatically move all students to age-appropriate classes based on their current age.</p>
+                        <div style="margin-top: 15px;">
+                            <strong>Age Groups:</strong><br>
+                            <small>
+                                0-5: Genesis | 6-7: Exodus | 8-9: Psalms<br>
+                                10-11: Proverbs | 12-13: Revelation | 14+: High Schoolers
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div class="option-card" onclick="selectOption('manual')">
+                        <i class="fas fa-hand-pointer" style="font-size: 2.5rem; color: #007bff; margin-bottom: 15px;"></i>
+                        <h3>Manual Selection</h3>
+                        <p>Select specific students and choose their new class manually. Useful for special cases.</p>
+                        <div style="margin-top: 15px;">
+                            <strong>Use when:</strong><br>
+                            <small>
+                                Student needs special placement<br>
+                                Moving students mid-year<br>
+                                Custom class assignments
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automatic Promotion Form -->
+                <form method="POST" id="automaticForm" style="display: none;">
+                    <input type="hidden" name="promotion_type" value="automatic">
+                    <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
+                        <h4>Automatic Age-Based Promotion</h4>
+                        <p>This will move all students to their age-appropriate classes.</p>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-magic"></i> Promote All Students
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Manual Selection Form -->
+                <div id="manualSection" class="manual-section">
+                    <form method="POST" id="manualForm">
+                        <input type="hidden" name="promotion_type" value="manual">
+                        
+                        <div style="margin-bottom: 20px; text-align: center;">
+                            <label>Move selected students to: </label>
+                            <select name="new_class" class="class-select" required>
+                                <option value="">Choose Class...</option>
+                                {% for class_name in classes %}
+                                <option value="{{ class_name }}">{{ class_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Move Selected
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Students List -->
+        <div class="promotion-card">
+            <div class="card-content">
+                <h2>Students Overview</h2>
+                <p>Students highlighted in yellow need age-appropriate class changes.</p>
+                
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th><input type="checkbox" id="selectAll" onchange="toggleAll()"></th>
+                            <th>Student</th>
+                            <th>Age</th>
+                            <th>Current Class</th>
+                            <th>Suggested Class</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in student_data %}
+                        <tr class="{{ 'needs-promotion' if data.needs_promotion else '' }}">
+                            <td>
+                                <input type="checkbox" name="student_ids" value="{{ data.student.id }}" 
+                                       form="manualForm" class="student-checkbox">
+                            </td>
+                            <td>
+                                <strong>{{ data.student.name }}</strong>
+                                {% if data.student.family_id %}
+                                <br><small style="color: #666;">Family: {{ data.student.family_id }}</small>
+                                {% endif %}
+                            </td>
+                            <td>{{ data.age }} years</td>
+                            <td>
+                                <span class="status-badge status-current">{{ data.current_class }}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge {{ 'status-needs' if data.needs_promotion else 'status-suggested' }}">
+                                    {{ data.suggested_class }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if data.needs_promotion %}
+                                    <i class="fas fa-exclamation-triangle" style="color: #f57c00;"></i> Needs Update
+                                {% else %}
+                                    <i class="fas fa-check-circle" style="color: #28a745;"></i> Correct
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function selectOption(type) {
+            // Remove selected class from all options
+            document.querySelectorAll('.option-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked option
+            event.target.closest('.option-card').classList.add('selected');
+            
+            // Show/hide appropriate forms
+            if (type === 'automatic') {
+                document.getElementById('automaticForm').style.display = 'block';
+                document.getElementById('manualSection').style.display = 'none';
+            } else {
+                document.getElementById('automaticForm').style.display = 'none';
+                document.getElementById('manualSection').style.display = 'block';
+            }
+        }
+
+        function toggleAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.student-checkbox');
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = selectAll.checked;
+            });
+        }
+
+        // Auto-hide flash messages
+        setTimeout(() => {
+            document.querySelectorAll('.flash').forEach(flash => {
+                flash.style.transition = "opacity 0.5s ease-out";
+                flash.style.opacity = "0";
+                setTimeout(() => flash.remove(), 500);
+            });
+        }, 4000);
+    </script>
+</body>
+</html>

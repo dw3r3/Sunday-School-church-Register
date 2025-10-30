@@ -1,0 +1,525 @@
+
+/* === Base === */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f8f8;
+    color: #212121;
+}
+
+/* === LOGIN PAGE === */
+body.login-page {
+    background: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.login-container {
+    text-align: center;
+    border: 1px solid #ccc;
+    padding: 30px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h1 {
+    color: #000000;
+    margin-bottom: 20px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc !important;
+    border-radius: 5px;
+    font-weight: normal !important;
+    outline: none !important;
+    transition: border 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus {
+    border: 1px solid #D32F2F !important;
+    outline: none !important;
+    font-weight: normal !important;
+}
+
+
+
+.login-container button {
+    background: #D32F2F;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.login-container a {
+    color: #212121;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.login-container a:hover {
+    text-decoration: underline;
+}
+
+.logo-wrapper {
+    margin-bottom: 20px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+/* === DASHBOARD LAYOUT === */
+.container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* === Sidebar === */
+.sidebar {
+    width: 150px;
+    background-color: #212121;
+    color: white;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.sidebar ul li {
+    margin: 10px 0;
+}
+
+.sidebar ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.sidebar ul li a:hover {
+    text-decoration: underline;
+}
+
+/* === Register Content === */
+.register {
+    margin-left: 180px; /* same as sidebar width */
+    padding: 30px;
+    background-color: #fff;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: scroll;
+    flex: 1;
+}
+
+.register h1 {
+    color: #D32F2F;
+    margin-top: 0;
+}
+
+/* === Dropdown Form === */
+form {
+    margin-bottom: 20px;
+}
+
+form select {
+    padding: 5px 10px;
+    margin-left: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* === Table Styling === */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background: #fff;
+    border: 1px solid #ddd;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #D32F2F;
+    color: white;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* === Present Counter === */
+#presentCount {
+    color: green;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+
+/* === Modal === */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 400px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-content input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px auto;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    background: #D32F2F;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close {
+    float: right;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* === Hamburger Toggle === */
+.sidebar-toggle {
+    display: none;
+    font-size: 26px;
+    padding: 15px;
+    background-color: #D32F2F;
+    color: white;
+    cursor: pointer;
+}
+
+.flash {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-left: 5px solid #28a745;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-left: 5px solid #dc3545;
+}
+.flash {
+    opacity: 1;
+    transition: opacity 0.5s ease-out;
+}
+body.edit-page {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin-top: 20px;
+}
+
+.edit-container {
+    background: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+}
+
+.edit-container h1 {
+    color: #D32F2F;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.edit-container label {
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+}
+
+.edit-container input,
+.edit-container select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.edit-container button {
+    background: #333;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-top: 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.edit-container a {
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    padding-left: 10px;
+}
+/* ...existing code... */
+
+/* Mobile styles */
+@media (max-width: 600px) {
+  body, html {
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+  }
+
+  .container {
+    flex-direction: column;
+    padding: 0 5px;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: -220px;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background: #222;
+    z-index: 1000;
+    transition: left 0.3s;
+    padding: 20px 10px;
+  }
+  .sidebar.active {
+    left: 0;
+  }
+  .sidebar-toggle {
+    display: block;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    font-size: 2em;
+    z-index: 1100;
+    background: #222;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  main.register {
+    margin-left: 0;
+    padding: 10px 0;
+    width: 100%;
+  }
+
+  .logo-wrapper img.logo {
+    height: 60px;
+    width: 60px;
+    margin-bottom: 10px;
+  }
+
+  table#studentTable {
+    font-size: 14px;
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+  table#studentTable th, table#studentTable td {
+    padding: 5px;
+    min-width: 80px;
+  }
+
+  #searchInput {
+    width: 100%;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .modal-content {
+    width: 95%;
+    margin: 10px auto;
+    padding: 10px;
+  }
+
+  .flash {
+    font-size: 14px;
+    padding: 5px;
+  }
+}
+
+
+/* ...existing code... */
+@media (max-width: 600px) {
+  .sidebar {
+    position: fixed;
+    left: -220px;
+    top: 0;
+    width: 200px;
+    height: 100%;
+    background: #222;
+    z-index: 1000;
+    transition: left 0.3s;
+    padding: 20px 10px;
+    overflow-y: auto;
+  }
+  .sidebar.active {
+    left: 0;
+  }
+  .sidebar-toggle {
+    display: block;
+    position: fixed;
+    left: 10px;
+    top: 10px;
+    font-size: 2em;
+    z-index: 1100;
+    background: #222;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .sidebar-close {
+    display: block;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 2em;
+    color: #fff;
+    cursor: pointer;
+    z-index: 1200;
+  }
+  .container {
+    flex-direction: column;
+    padding: 0 5px;
+  }
+  main.register {
+    margin-left: 0;
+    padding: 10px 0;
+    width: 100%;
+  }
+}
+
+/* === Class Navigation Tabs === */
+.class-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 25px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.class-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #ffffff;
+    color: #495057;
+    text-decoration: none;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.class-tab:hover {
+    background: #e9ecef;
+    color: #212529;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.class-tab.active {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+    transform: translateY(-1px);
+}
+
+.class-tab.active:hover {
+    background: #333333;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+/* Mobile responsiveness for class tabs */
+@media (max-width: 768px) {
+    .class-navigation {
+        padding: 8px;
+        gap: 6px;
+    }
+
+    .class-tab {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+}
